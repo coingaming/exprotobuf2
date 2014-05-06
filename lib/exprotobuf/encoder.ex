@@ -1,26 +1,9 @@
-defmodule ExProtobuf.Encoder do
-  alias ExProtobuf.Utils
-  alias ExProtobuf.Field
-  alias ExProtobuf.OneOfField
-
+defmodule Protobuf.Encoder do
   def encode(%{} = msg, defs) do
-    fixed_defs = for {{type, mod}, fields} <- defs, into: [] do
-      case type do
-        :msg  -> {{:msg, mod}, Enum.map(fields, fn field ->
-          case field do
-            %OneOfField{} -> field |> Utils.convert_to_record(OneOfField)
-            %Field{} -> field |> Utils.convert_to_record(Field)
-          end
-        end)}
-        type when type in [:enum, :extensions, :service, :group] ->
-          {{type, mod}, fields}
-      end
-    end
-
     msg
     |> fix_undefined
-    |> Utils.convert_to_record(msg.__struct__)
-    |> :gpb.encode_msg(fixed_defs)
+    |> convert_to_record
+    |> :gpb.encode_msg(defs)
   end
 
   defp fix_undefined(%{} = msg) do
@@ -38,7 +21,14 @@ defmodule ExProtobuf.Encoder do
 
   defp fix_value(nil),                         do: :undefined
   defp fix_value(values) when is_list(values), do: Enum.map(values, &fix_value/1)
-  defp fix_value(value)  when is_map(value),   do: value |> fix_undefined |> Utils.convert_to_record(value.__struct__)
-  defp fix_value(value)  when is_tuple(value), do: value |> Tuple.to_list |> Enum.map(&fix_value/1) |> List.to_tuple
+  defp fix_value(value)  when is_map(value),   do: value |> fix_undefined |> convert_to_record
   defp fix_value(value),                       do: value
+
+  defp convert_to_record(map) do
+    map
+    |> Map.to_list
+    |> Enum.reduce([], fn {_key, value}, acc -> [value | acc] end)
+    |> Enum.reverse
+    |> list_to_tuple
+  end
 end

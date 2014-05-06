@@ -9,11 +9,11 @@ defmodule GpbCompileHelper do
   end
 
   def compile_tmp_proto(msgs, options, func) do
-    compile_tmp_proto(msgs, options, find_unused_module(), func)
+    compile_tmp_proto(msgs, options, find_unused_module, func)
   end
 
   def compile_tmp_proto(msgs, options, module, func) do
-    defs = ExProtobuf.Parser.parse_string!(msgs, options)
+    {:ok, defs} = Protobuf.Parse.parse(msgs, options)
 
     options = [:binary | options]
 

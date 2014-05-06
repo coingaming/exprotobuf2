@@ -4,9 +4,6 @@ exprotobuf works by building module/struct definitions from a [Google Protocol B
 schema. This allows you to work with protocol buffers natively in Elixir, with easy decoding/encoding for transport across the
 wire.
 
-[![Build Status](https://travis-ci.org/bitwalker/exprotobuf.svg?branch=master)](https://travis-ci.org/bitwalker/exprotobuf)
-[![Hex.pm Version](http://img.shields.io/hexpm/v/exprotobuf.svg?style=flat)](https://hex.pm/packages/exprotobuf)
-
 ## Features
 
 * Load protobuf from file or string
@@ -16,41 +13,12 @@ wire.
 
 TODO:
 
+* Support importing definitions
 * Clean up code/tests
 
-## Breaking Changes
+## Examples
 
-The 1.0 release removed the feature of handling `import "...";` statements.
-Please see [the imports upgrade guide](imports_upgrade_guide.md) for details if you were using this feature.
-
-## Getting Started
-
-Add exprotobuf as a dependency to your project:
-
-```elixir
-defp deps do
-  [{:exprotobuf, "~> x.x.x"}]
-end
-```
-
-Then run `mix deps.get` to fetch.
-
-Add exprotobuf to applications list:
-
-```elixir
-def application do
-  [applications: [:exprotobuf]]
-end
-```
-
-## Usage
-
-Usage of exprotobuf boils down to a single `use` statement within one or
-more modules in your project.
-
-Let's start with the most basic of usages:
-
-### Define from a string
+## Define from a string
 
 ```elixir
 defmodule Messages do
@@ -81,15 +49,7 @@ iex> Messages.Msg.decode(encoded)
 %Messages.Msg{version: :V2, sub: nil}
 ```
 
-The above code takes the provided protobuf schema as a string, and
-generates modules/structs for the types it defines. In this case, there
-would be a Msg module, containing a SubMsg and Version module. The
-properties defined for those values are keys in the struct belonging to
-each. Enums do not generate structs, but a specialized module with two
-functions: `atom(x)` and `value(x)`. These will get either the name of
-the enum value, or it's associated value.
-
-### Define from a file
+## Define from a file
 
 ```elixir
 defmodule Messages do
@@ -97,137 +57,7 @@ defmodule Messages do
 end
 ```
 
-This is equivalent to the above, if you assume that `messages.proto`
-contains the same schema as in the string of the first example.
-
-### Loading all definitions from a set of files
-
-```elixir
-defmodule Protobufs do
-  use Protobuf, from: Path.wildcard(Path.expand("../definitions/**/*.proto", __DIR__))
-end
-```
-
-```elixir
-iex> Protobufs.Msg.new(v: :V1)
-%Protobufs.Msg{v: :V1}
-iex> %Protobufs.OtherMessage{middle_name: "Danger"}
-%Protobufs.OtherMessage{middle_name: "Danger"}
-```
-
-This will load all the various definitions in your `.proto` files and
-allow them to share definitions like enums or messages between them.
-
-### Customizing Generated Module Names
-
-In some cases your library of protobuf definitions might already contain some
-namespaces that you would like to keep.
-In this case you will probably want to pass the `use_package_names: true` option.
-Let's say you had a file called `protobufs/example.proto` that contained:
-
-```protobuf
-package world;
-message Example {
-  enum Continent {
-    ANTARCTICA = 0;
-    EUROPE = 1;
-  }
-
-  optional Continent continent = 1;
-  optional uint32 id = 2;
-}
-```
-
-You could load that file (and everything else in the protobufs directory) by doing:
-
-```elixir
-defmodule Definitions do
-  use Protobuf, from: Path.wildcard("protobufs/*.proto"), use_package_names: true
-end
-```
-
-```elixir
-iex> Definitions.World.Example.new(continent: :EUROPE)
-%Definitions.World.Example{continent: :EUROPE}
-```
-
-You might also want to define all of these modules in the top-level namespace. You
-can do this by passing an explicit `namespace: :"Elixir"` option.
-
-```elixir
-defmodule Definitions do
-  use Protobuf, from: Path.wildcard("protobufs/*.proto"),
-                use_package_names: true,
-                namespace: :"Elixir"
-end
-```
-
-```elixir
-iex> World.Example.new(continent: :EUROPE)
-%World.Example{continent: :EUROPE}
-```
-
-Now you can use just the package names and message names that your team is already
-familiar with.
-
-### Inject a definition into an existing module
-
-This is useful when you only have a single type, or if you want to pull
-the module definition into the current module instead of generating a
-new one.
-
-```elixir
-defmodule Msg do
-  use Protobuf, from: Path.expand("../proto/messages.proto", __DIR__), inject: true
-
-  def update(msg, key, value), do: Map.put(msg, key, value)
-end
-```
-
-```elixir
-iex> %Msg{}
-%Msg{v: :V1}
-iex> Msg.update(%Msg{}, :v, :V2)
-%Msg{v: :V2}
-```
-
-As you can see, Msg is no longer created as a nested module, but is
-injected right at the top level. I find this approach to be a lot
-cleaner than `use_in`, but may not work in all use cases.
-
-### Inject a specific type from a larger subset of types
-
-When you have a large schema, but perhaps only care about a small subset
-of those types, you can use `:only`:
-
-```elixir
-defmodule Messages do
-  use Protobuf, from: Path.expand("../proto/messages.proto", __DIR__),
-only: [:TypeA, :TypeB]
-end
-```
-
-Assuming that the provided .proto file contains multiple type
-definitions, the above code would extract only TypeA and TypeB as nested
-modules. Keep in mind your dependencies, if you select a child type
-which depends on a parent, or another top-level type, exprotobuf may
-fail, or your code may fail at runtime.
-
-You may only combine `:only` with `:inject` when `:only` is a single
-type, or a list containing a single type. This is due to the restriction
-of one struct per module. Theoretically you should be able to pass `:only`
-with multiple types, as long all but one of the types is an enum, since
-enums are just generated as modules, this does not currently work
-though.
-
-### Extend generated modules via `use_in`
-
-If you need to add behavior to one of the generated modules, `use_in`
-will help you. The tricky part is that the struct for the module you
-`use_in` will not be defined yet, so you can't rely on it in your
-functions. You can still work with the structs via the normal Maps API,
-but you lose compile-time guarantees. I would recommend favoring
-`:inject` over this when possible, as it's a much cleaner solution.
+## Extend generated modules via `use_in`
 
 ```elixir
 defmodule Messages do

@@ -1,63 +1,30 @@
-defmodule ExProtobuf.Mixfile do
+defmodule Protobuf.Mixfile do
   use Mix.Project
-  
-  @version (case File.read("VERSION") do
-    {:ok, version} -> String.trim(version)
-    {:error, _} -> "0.0.0-development"
-  end)
-  
+
   def project do
-    [
-      app: :exprotobuf,
-      version: @version,
-      elixir: "~> 1.2",
-      elixirc_paths: elixirc_paths(Mix.env),
-      description: description(),
-      package: package(),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      consolidate_protocols: Mix.env == :prod,
-      deps: deps(),
-      # docs
-      name: "Bennu",
-      source_url: "https://github.com/coingaming/exprotobuf2",
-      homepage_url: "https://github.com/coingaming/exprotobuf2/tree/v#{@version}",
-      docs: [
-        source_ref: "v#{@version}"
-      ]
-    ]
+    [app: :exprotobuf,
+     version: "0.1.0",
+     elixir: "~> 0.13.2-dev",
+     deps: deps]
   end
 
+  # Configuration for the OTP application
+  #
+  # Type `mix help compile.app` for more information
   def application do
-    [applications: [:gpb]]
+    [applications: []]
   end
 
-  defp description do
-    """
-    exprotobuf provides native encoding/decoding of
-    protobuf messages via generated modules/structs.
-    """
-  end
-
-  defp package do
-    [ organization: "coingaming",
-      files: ["lib", "mix.exs", "README.md", "LICENSE", "VERSION"],
-      maintainers: ["Paul Schoenfelder", "Ilja Tkachuk aka timCF"],
-      licenses: ["Apache Version 2.0"],
-      links: %{"GitHub": "https://github.com/coingaming/exprotobuf2/tree/v#{@version}"} ]
-  end
-
+  # Dependencies can be hex.pm packages:
+  #
+  # {:mydep, "~> 0.3.0"}
+  #
+  # Or git/path repositories:
+  #
+  # {:foobar, git: "https://github.com/elixir-lang/foobar.git", tag: "0.1"}
+  #
+  # Type `mix help deps` for more examples and options
   defp deps do
-    [
-      {:gpb, "~> 3.24"},
-      {:ex_doc, "~> 0.19", only: :dev},
-      {:benchfella, "~> 0.3.0", only: [:dev, :test], runtime: false}
-    ]
+    [{ :gpb, github: "tomas-abrahamsson/gpb" }]
   end
-
-  # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support", "bench/support"]
-  defp elixirc_paths(:dev),  do: ["lib", "bench/support"]
-  defp elixirc_paths(_),     do: ["lib"]
-
 end
