@@ -19,12 +19,3 @@ message AdvancedOneofMsg {
     uint32 code = 4;
   }
 }
-
-message ReversedOrderOneOfMsg {
-	oneof foo {
-		string body = 1;
-		uint32 code = 2;
-	}
-
-	optional string bar = 3;
-}

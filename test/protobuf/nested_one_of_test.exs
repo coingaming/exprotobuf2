@@ -1,14 +1,14 @@
-defmodule ExProtobuf.NestedOneof.Test do
-  use ExProtobuf.Case
+defmodule Protobuf.NestedOneof.Test do
+  use Protobuf.Case
 
   defmodule Msgs do
-    use ExProtobuf, from: Path.expand("../proto/nested_one_of.proto", __DIR__)
+    use Protobuf, from: Path.expand("../proto/nested_one_of.proto", __DIR__)
   end
 
   test "can encode nested one_of proto" do
     bar = Msgs.Bar.new msg: "msg"
     c = Msgs.Container.new hello: "hello", msg: {:bar, bar}
-    enc_c = ExProtobuf.Serializable.serialize(c)
+    enc_c = c |> Msgs.Container.encode
 
     assert is_binary(enc_c)
   end
@@ -25,7 +25,7 @@ defmodule ExProtobuf.NestedOneof.Test do
     fm = Msgs.FooMetadata.new type: {:single_metadata, sfm}
     foo = Msgs.Foo.new foo_id: "foo_id", created_at: 0, metadata: fm
     c = Msgs.Container.new msg: {:foo, foo}
-    enc_c = ExProtobuf.Serializable.serialize(c)
+    enc_c = c |> Msgs.Container.encode
 
     assert is_binary(enc_c)
   end
@@ -36,51 +36,6 @@ defmodule ExProtobuf.NestedOneof.Test do
     decoded = encoded |> Msgs.Container.decode
 
     assert %Msgs.Container{} = decoded
-  end
-
-  test "nested oneof macro in pattern matching" do
-    alias Msgs.Container
-    alias Msgs.Foo
-    alias Msgs.FooMetadata
-    alias Msgs.SingleFooMetadata
-
-    require Container.OneOf.Msg, as: OneOfMsg
-    require FooMetadata.OneOf.Type, as: OneOfType
-
-    expected_metadata = %SingleFooMetadata{
-      baz_id: "world"
-    }
-
-    expected_msg = %Foo{
-      foo_id: <<1, 2, 3>>,
-      created_at: 123,
-      metadata: %FooMetadata{
-        type: OneOfType.single_metadata(expected_metadata)
-      }
-    }
-
-    %Container{
-      hello: "hello",
-      msg: OneOfMsg.foo(expected_msg)
-    }
-    |> Container.encode
-    |> Container.decode
-    |> case do
-      %Container{
-        hello: "hello",
-        msg: OneOfMsg.foo(actual_msg = %Foo{
-          foo_id: <<1, 2, 3>>,
-          created_at: 123,
-          metadata: %FooMetadata{
-            type: OneOfType.single_metadata(actual_metadata)
-          }
-        })
-      } ->
-        assert expected_metadata == actual_metadata
-        assert expected_msg == actual_msg
-      %Container{} ->
-        assert false
-    end
   end
 
 end
