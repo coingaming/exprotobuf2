@@ -1,5 +1,5 @@
 defmodule Exprotobuf.Bench.Proto do
-  use ExProtobuf, """
+  use Protobuf, """
     syntax="proto3";
 
     package Demo.Data;
