@@ -3,7 +3,7 @@ defmodule ExProtobuf.Mixfile do
 
   def project do
     [app: :exprotobuf,
-     version: "1.2.15",
+     version: version(),
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
      description: description(),
@@ -18,6 +18,13 @@ defmodule ExProtobuf.Mixfile do
     [applications: [:gpb]]
   end
 
+  defp version do
+    case File.read("VERSION") do
+      {:ok, v} -> String.trim(v)
+      {:error, _} -> "0.0.0-development"
+    end
+  end
+
   defp description do
     """
     exprotobuf provides native encoding/decoding of
@@ -27,10 +34,10 @@ defmodule ExProtobuf.Mixfile do
 
   defp package do
     [ organization: "coingaming",
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "VERSION"],
       maintainers: ["Paul Schoenfelder", "Ilja Tkachuk aka timCF"],
       licenses: ["Apache Version 2.0"],
-      links: %{"GitHub": "https://github.com/coingaming/exprotobuf"} ]
+      links: %{"GitHub": "https://github.com/coingaming/exprotobuf2"} ]
   end
 
   defp deps do
