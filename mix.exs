@@ -20,7 +20,7 @@ defmodule ExProtobuf.Mixfile do
 
   defp version do
     case File.read("VERSION") do
-      {:ok, v} -> String.trim(v)
+      {:ok, version} -> String.trim(version)
       {:error, _} -> "0.0.0-development"
     end
   end
