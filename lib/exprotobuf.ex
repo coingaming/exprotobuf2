@@ -1,11 +1,11 @@
-defmodule Protobuf do
-  alias Protobuf.Parser
-  alias Protobuf.Builder
-  alias Protobuf.Config
-  alias Protobuf.ConfigError
-  alias Protobuf.Field
-  alias Protobuf.OneOfField
-  alias Protobuf.Utils
+defmodule ExProtobuf do
+  alias ExProtobuf.Parser
+  alias ExProtobuf.Builder
+  alias ExProtobuf.Config
+  alias ExProtobuf.ConfigError
+  alias ExProtobuf.Field
+  alias ExProtobuf.OneOfField
+  alias ExProtobuf.Utils
 
   defmacro __using__(schema) when is_binary(schema) do
     config = %Config{namespace: __CALLER__.module, schema: schema}
@@ -16,7 +16,7 @@ defmodule Protobuf do
   end
 
   defmacro __using__([schema | opts]) when is_binary(schema) do
-    namespace = __CALLER__.module
+    {namespace, opts} = Keyword.pop(opts, :namespace, __CALLER__.module)
 
     config =
       case Enum.into(opts, %{}) do
@@ -103,7 +103,7 @@ defmodule Protobuf do
             from_file: file,
             doc: doc,
             use_package_names: use_package_names,
-            use_google_types: use_google_types,
+            use_google_types: use_google_types
           }
 
         %{from: file, only: only, inject: true} ->
@@ -116,12 +116,12 @@ defmodule Protobuf do
 
             [_type] ->
               %Config{
-                namespace: namespace, 
-                only: types, 
-                inject: true, 
-                from_file: file, 
+                namespace: namespace,
+                only: types,
+                inject: true,
+                from_file: file,
                 doc: doc,
-                use_google_types: use_google_types,
+                use_google_types: use_google_types
               }
           end
 
@@ -131,26 +131,27 @@ defmodule Protobuf do
             only: parse_only(only, __CALLER__),
             from_file: file,
             doc: doc,
-            use_google_types: use_google_types,
+            use_google_types: use_google_types
           }
 
         %{from: file, inject: true} ->
           only = last_module(namespace)
+
           %Config{
-            namespace: namespace,  
-            only: [only], 
-            inject: true, 
-            from_file: file, 
+            namespace: namespace,
+            only: [only],
+            inject: true,
+            from_file: file,
             doc: doc,
-            use_google_types: use_google_types,
+            use_google_types: use_google_types
           }
 
         %{from: file} ->
           %Config{
-            namespace: namespace, 
-            from_file: file, 
+            namespace: namespace,
+            from_file: file,
             doc: doc,
-            use_google_types: use_google_types,
+            use_google_types: use_google_types
           }
       end
 
@@ -173,6 +174,7 @@ defmodule Protobuf do
   # Parse and fix namespaces of parsed types
   defp parse(%Config{schema: schema, inject: inject, from_file: nil} = config, caller) do
     ns = config.namespace
+
     mod_name =
       if inject do
         caller.module
@@ -202,16 +204,23 @@ defmodule Protobuf do
 
       if inject do
         ns_init = drop_last_module(ns)
-        {{parsed_type, :"#{ns_init}.#{normalize_name(name)}"}, namespace_fields(type, fields, ns, true)}
+
+        {{parsed_type, :"#{ns_init}.#{normalize_name(name)}"},
+         namespace_fields(type, fields, ns, true)}
       else
-        {{parsed_type, :"#{ns}.#{normalize_name(name)}"}, namespace_fields(type, fields, ns, false)}
+        {{parsed_type, :"#{ns}.#{normalize_name(name)}"},
+         namespace_fields(type, fields, ns, false)}
       end
     end
   end
 
   # Apply namespace to nested types
-  defp namespace_fields(:msg, fields, ns, inject), do: Enum.map(fields, &namespace_fields(&1, ns, inject))
-  defp namespace_fields(:proto3_msg, fields, ns, inject), do: Enum.map(fields, &namespace_fields(&1, ns, inject))
+  defp namespace_fields(:msg, fields, ns, inject),
+    do: Enum.map(fields, &namespace_fields(&1, ns, inject))
+
+  defp namespace_fields(:proto3_msg, fields, ns, inject),
+    do: Enum.map(fields, &namespace_fields(&1, ns, inject))
+
   defp namespace_fields(_, fields, _, _), do: fields
 
   defp namespace_fields(field, ns, inject) when not is_map(field) do
@@ -296,9 +305,9 @@ defmodule Protobuf do
 
   # Returns the last module of a namespace
   defp last_module(namespace) do
-    namespace 
-    |> Module.split() 
-    |> List.last() 
+    namespace
+    |> Module.split()
+    |> List.last()
     |> String.to_atom()
   end
 

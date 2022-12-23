@@ -1,4 +1,4 @@
-defmodule Protobuf.Parser do
+defmodule ExProtobuf.Parser do
   defmodule ParserError do
     defexception [:message]
   end

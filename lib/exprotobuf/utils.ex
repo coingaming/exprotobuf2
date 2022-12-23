@@ -1,7 +1,7 @@
-defmodule Protobuf.Utils do
+defmodule ExProtobuf.Utils do
   @moduledoc false
-  alias Protobuf.OneOfField
-  alias Protobuf.Field
+  alias ExProtobuf.OneOfField
+  alias ExProtobuf.Field
 
   @standard_scalar_wrappers %{
     "Google.Protobuf.DoubleValue" => true,

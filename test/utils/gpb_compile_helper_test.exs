@@ -1,5 +1,5 @@
-defmodule Protobuf.Test.GpbCompileHelperTest do
-  use Protobuf.Case
+defmodule ExProtobuf.Test.GpbCompileHelperTest do
+  use ExProtobuf.Case
 
   test "auxiliar compile test function" do
     Gpb.compile_tmp_proto ~S[
