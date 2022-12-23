@@ -1,8 +1,8 @@
-defmodule Protobuf.Encoder.Test do
-  use Protobuf.Case
+defmodule ExProtobuf.Encoder.Test do
+  use ExProtobuf.Case
 
   defmodule EncoderProto do
-    use Protobuf, """
+    use ExProtobuf, """
       message Msg {
         required int32 f1 = 1;
         optional int32 f2 = 2;
@@ -42,7 +42,7 @@ defmodule Protobuf.Encoder.Test do
   end
   
   #defmodule ExtensionsProto do
-    #use Protobuf, """
+    #use ExProtobuf, """
     #message Msg {
       #extensions 200 to max;
       #optional string name = 1;
@@ -55,23 +55,23 @@ defmodule Protobuf.Encoder.Test do
 
   test "fixing nil values to :undefined" do
     msg = EncoderProto.Msg.new(f1: 150)
-    assert <<8, 150, 1>> == Protobuf.Serializable.serialize(msg)
-    assert <<10, 3, 8, 150, 1>> == Protobuf.Serializable.serialize(EncoderProto.WithSubMsg.new(f1: msg))
+    assert <<8, 150, 1>> == ExProtobuf.Serializable.serialize(msg)
+    assert <<10, 3, 8, 150, 1>> == ExProtobuf.Serializable.serialize(EncoderProto.WithSubMsg.new(f1: msg))
   end
 
   test "fixing a nil value in repeated submsg" do
     msg = EncoderProto.WithRepeatedSubMsg.new(f1: [EncoderProto.Msg.new(f1: 1)])
-    assert <<10, 2, 8, 1>> == Protobuf.Serializable.serialize(msg)
+    assert <<10, 2, 8, 1>> == ExProtobuf.Serializable.serialize(msg)
   end
 
   test "fixing lowercase message and enum references" do
     msg = EncoderProto.ExtraMsg.new(type: :ACK, message: [EncoderProto.Msg.new(f1: 1)])
-    assert <<8, 1, 18, 2, 8, 1>> == Protobuf.Serializable.serialize(msg)
+    assert <<8, 1, 18, 2, 8, 1>> == ExProtobuf.Serializable.serialize(msg)
   end
 
   test "encodes enums" do
     msg = EncoderProto.WithEnum.new(version: :'V1')
-    assert <<8, 1>> == Protobuf.Serializable.serialize(msg)
+    assert <<8, 1>> == ExProtobuf.Serializable.serialize(msg)
   end
 
   #test "it can create an extended message" do

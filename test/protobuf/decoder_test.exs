@@ -1,10 +1,10 @@
-defmodule Protobuf.Decoder.Test do
-  use Protobuf.Case
-  alias Protobuf.Decoder, as: D
+defmodule ExProtobuf.Decoder.Test do
+  use ExProtobuf.Case
+  alias ExProtobuf.Decoder, as: D
 
   test "fix :undefined values to nil in proto2" do
     defmodule UndefinedValuesProto2 do
-      use Protobuf, """
+      use ExProtobuf, """
         message Msg {
           optional string f1 = 1;
           optional int32 f2 = 2;
@@ -19,7 +19,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "fix :undefined values to default value in proto3" do
     defmodule UndefinedValuesProto3 do
-      use Protobuf, """
+      use ExProtobuf, """
         syntax = "proto3";
 
         message Msg {
@@ -36,7 +36,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "fix repeated values" do
     defmodule RepeatedValuesProto do
-      use Protobuf, """
+      use ExProtobuf, """
         message Msg {
             repeated string f1 = 1;
         }
@@ -50,7 +50,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "fixing string values" do
     defmodule FixingStringValuesProto do
-      use Protobuf, """
+      use ExProtobuf, """
         message Msg {
           required string f1 = 1;
 
@@ -74,7 +74,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "enums" do
     defmodule EnumsProto do
-      use Protobuf, """
+      use ExProtobuf, """
         message Msg {
           message SubMsg {
             required uint32 value = 1;
@@ -98,7 +98,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "extensions" do
     defmodule ExtensionsProto do
-      use Protobuf, """
+      use ExProtobuf, """
         message Regular {
           required string foo = 1;
         }
@@ -138,7 +138,7 @@ defmodule Protobuf.Decoder.Test do
 
   test "complex proto decoding" do
     defmodule MumbleProto do
-      use Protobuf, from: Path.expand("../proto/mumble.proto", __DIR__)
+      use ExProtobuf, from: Path.expand("../proto/mumble.proto", __DIR__)
     end
 
     msg = MumbleProto.Authenticate.new(username: "bitwalker")

@@ -1,8 +1,8 @@
-defmodule Protobuf.Decoder do
+defmodule ExProtobuf.Decoder do
   use Bitwise, only_operators: true
-  require Protobuf.Utils, as: Utils
-  alias Protobuf.Field
-  alias Protobuf.OneOfField
+  require ExProtobuf.Utils, as: Utils
+  alias ExProtobuf.Field
+  alias ExProtobuf.OneOfField
 
   # Decode with record/module
   def decode(bytes, module) do
@@ -42,13 +42,13 @@ defmodule Protobuf.Decoder do
     |> Map.from_struct()
     |> Map.keys()
     |> Enum.reduce(msg, fn field, msg ->
-        value = Map.get(msg, field)
+      value = Map.get(msg, field)
 
-        if value == :undefined do
-          Map.put(msg, field, get_default(module.syntax(), field, module))
-        else
-          convert_field(value, msg, module.defs(:field, field))
-        end
+      if value == :undefined do
+        Map.put(msg, field, get_default(module.syntax(), field, module))
+      else
+        convert_field(value, msg, module.defs(:field, field))
+      end
     end)
   end
 
@@ -85,6 +85,7 @@ defmodule Protobuf.Decoder do
           for v <- value do
             convert_value(type, v)
           end
+
         Map.put(msg, field, value)
 
       {_, :string} ->

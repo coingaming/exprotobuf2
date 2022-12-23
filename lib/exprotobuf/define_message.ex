@@ -1,12 +1,12 @@
-defmodule Protobuf.DefineMessage do
+defmodule ExProtobuf.DefineMessage do
   @moduledoc false
 
-  alias Protobuf.Decoder
-  alias Protobuf.Encoder
-  alias Protobuf.Field
-  alias Protobuf.OneOfField
-  alias Protobuf.Delimited
-  alias Protobuf.Utils
+  alias ExProtobuf.Decoder
+  alias ExProtobuf.Encoder
+  alias ExProtobuf.Field
+  alias ExProtobuf.OneOfField
+  alias ExProtobuf.Delimited
+  alias ExProtobuf.Utils
 
   def def_message(name, fields, inject: inject, doc: doc, syntax: syntax) when is_list(fields) do
     struct_fields = record_fields(fields)
@@ -29,7 +29,7 @@ defmodule Protobuf.DefineMessage do
         unquote(meta_information())
         unquote(constructors(name))
 
-        defimpl Protobuf.Serializable do
+        defimpl ExProtobuf.Serializable do
           def serialize(object), do: unquote(name).encode(object)
         end
       end
@@ -43,7 +43,7 @@ defmodule Protobuf.DefineMessage do
 
         defmodule unquote(name) do
           @moduledoc false
-          unquote(Protobuf.Config.doc_quote(doc))
+          unquote(ExProtobuf.Config.doc_quote(doc))
           @root root
           @record unquote(struct_fields)
           defstruct @record
@@ -64,7 +64,7 @@ defmodule Protobuf.DefineMessage do
             Module.eval_quoted(__MODULE__, use_in, [], __ENV__)
           end
 
-          defimpl Protobuf.Serializable do
+          defimpl ExProtobuf.Serializable do
             def serialize(object), do: unquote(name).encode(object)
           end
         end
@@ -145,11 +145,11 @@ defmodule Protobuf.DefineMessage do
 
   defp define_trivial_typespec_fields([field | rest], acc) do
     case field do
-      %Protobuf.Field{name: name, occurrence: :required, type: type} ->
+      %ExProtobuf.Field{name: name, occurrence: :required, type: type} ->
         ast = {name, define_field_typespec(type)}
         define_trivial_typespec_fields(rest, [ast | acc])
 
-      %Protobuf.Field{name: name, occurrence: :optional, type: type} ->
+      %ExProtobuf.Field{name: name, occurrence: :optional, type: type} ->
         ast =
           {name,
            quote do
@@ -158,7 +158,7 @@ defmodule Protobuf.DefineMessage do
 
         define_trivial_typespec_fields(rest, [ast | acc])
 
-      %Protobuf.Field{name: name, occurrence: :repeated, type: type} ->
+      %ExProtobuf.Field{name: name, occurrence: :repeated, type: type} ->
         ast =
           {name,
            quote do
@@ -167,7 +167,7 @@ defmodule Protobuf.DefineMessage do
 
         define_trivial_typespec_fields(rest, [ast | acc])
 
-      %Protobuf.OneOfField{name: name, fields: fields} ->
+      %ExProtobuf.OneOfField{name: name, fields: fields} ->
         ast =
           {name,
            quote do
@@ -180,16 +180,16 @@ defmodule Protobuf.DefineMessage do
 
   defp define_algebraic_type(fields) do
     ast =
-      for %Protobuf.Field{name: name, type: type} <- fields do
+      for %ExProtobuf.Field{name: name, type: type} <- fields do
         {name, define_field_typespec(type)}
       end
 
-    Protobuf.Utils.define_algebraic_type([nil | ast])
+    ExProtobuf.Utils.define_algebraic_type([nil | ast])
   end
 
   defp define_oneof_modules(namespace, fields) when is_list(fields) do
     ast =
-      for %Protobuf.OneOfField{} = field <- fields do
+      for %ExProtobuf.OneOfField{} = field <- fields do
         define_oneof_instance_module(namespace, field)
       end
 
@@ -198,7 +198,7 @@ defmodule Protobuf.DefineMessage do
     end
   end
 
-  defp define_oneof_instance_module(namespace, %Protobuf.OneOfField{name: field, fields: fields}) do
+  defp define_oneof_instance_module(namespace, %ExProtobuf.OneOfField{name: field, fields: fields}) do
     module_subname =
       field
       |> Atom.to_string()
@@ -214,7 +214,7 @@ defmodule Protobuf.DefineMessage do
     end
   end
 
-  defp define_oneof_instance_macro(%Protobuf.Field{name: name}) do
+  defp define_oneof_instance_macro(%ExProtobuf.Field{name: name}) do
     quote do
       defmacro unquote(name)(ast) do
         inner_name = unquote(name)

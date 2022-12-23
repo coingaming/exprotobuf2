@@ -1,8 +1,8 @@
 defmodule Extprotobuf.Delimited.Test do
-  use Protobuf.Case
+  use ExProtobuf.Case
 
   defmodule Wrapper do
-    use Protobuf, """
+    use ExProtobuf, """
     message User {
       required string name = 1;
       optional int32 id = 2;
@@ -15,7 +15,7 @@ defmodule Extprotobuf.Delimited.Test do
 
   test "encode creates a valid message for 1 message" do
     user = %Wrapper.User{name: "Mujju", id: 1}
-    encoded_bytes = Protobuf.Delimited.encode([user])
+    encoded_bytes = ExProtobuf.Delimited.encode([user])
 
     encoded_user = Wrapper.User.encode(user)
     size = <<byte_size(encoded_user)::size(32)>>
@@ -26,7 +26,7 @@ defmodule Extprotobuf.Delimited.Test do
 
   test "encode creates a valid message for multi message" do
     user = %Wrapper.User{name: "Mujju", id: 1}
-    encoded_bytes = Protobuf.Delimited.encode([user, user, user])
+    encoded_bytes = ExProtobuf.Delimited.encode([user, user, user])
 
     encoded_user = Wrapper.User.encode(user)
     size = <<byte_size(encoded_user)::size(32)>>
@@ -35,11 +35,11 @@ defmodule Extprotobuf.Delimited.Test do
   end
 
   test "decode creates a valid struct for 1 message" do
-    assert Protobuf.Delimited.decode(@encoded_out, Wrapper.User) == [%Wrapper.User{name: "Mujju", id: 1}]
+    assert ExProtobuf.Delimited.decode(@encoded_out, Wrapper.User) == [%Wrapper.User{name: "Mujju", id: 1}]
   end
 
   test "decode creates a valid struct for 3 message" do
-    users = Protobuf.Delimited.decode(@encoded_out_multiple, Wrapper.User)
+    users = ExProtobuf.Delimited.decode(@encoded_out_multiple, Wrapper.User)
 
     assert users == Enum.map(1..3, fn(_)-> %Wrapper.User{name: "Mujju", id: 1} end)
   end

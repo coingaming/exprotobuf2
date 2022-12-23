@@ -1,4 +1,4 @@
-defmodule Protobuf.Field do
+defmodule ExProtobuf.Field do
   gpb_path = Path.join([Mix.Project.deps_path(), "gpb"])
   headers_path = Path.join([gpb_path, "include", "gpb.hrl"])
 

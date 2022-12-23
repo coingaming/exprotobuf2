@@ -1,14 +1,14 @@
-defmodule Protobuf.NestedOneof.Test do
-  use Protobuf.Case
+defmodule ExProtobuf.NestedOneof.Test do
+  use ExProtobuf.Case
 
   defmodule Msgs do
-    use Protobuf, from: Path.expand("../proto/nested_one_of.proto", __DIR__)
+    use ExProtobuf, from: Path.expand("../proto/nested_one_of.proto", __DIR__)
   end
 
   test "can encode nested one_of proto" do
     bar = Msgs.Bar.new msg: "msg"
     c = Msgs.Container.new hello: "hello", msg: {:bar, bar}
-    enc_c = Protobuf.Serializable.serialize(c)
+    enc_c = ExProtobuf.Serializable.serialize(c)
 
     assert is_binary(enc_c)
   end
@@ -25,7 +25,7 @@ defmodule Protobuf.NestedOneof.Test do
     fm = Msgs.FooMetadata.new type: {:single_metadata, sfm}
     foo = Msgs.Foo.new foo_id: "foo_id", created_at: 0, metadata: fm
     c = Msgs.Container.new msg: {:foo, foo}
-    enc_c = Protobuf.Serializable.serialize(c)
+    enc_c = ExProtobuf.Serializable.serialize(c)
 
     assert is_binary(enc_c)
   end

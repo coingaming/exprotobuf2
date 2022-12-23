@@ -1,4 +1,4 @@
-defmodule Protobuf.DefineEnum do
+defmodule ExProtobuf.DefineEnum do
   @moduledoc false
 
   @doc """
@@ -38,7 +38,7 @@ defmodule Protobuf.DefineEnum do
         defmodule unquote(name) do
           @moduledoc false
           unquote(define_typespec(enum_atoms))
-          unquote(Protobuf.Config.doc_quote(doc))
+          unquote(ExProtobuf.Config.doc_quote(doc))
           unquote(contents)
           def value(_), do: nil
           def atom(_), do: nil
@@ -49,7 +49,7 @@ defmodule Protobuf.DefineEnum do
 
   defp define_typespec(enum_atoms) do
     quote do
-      @type t() :: unquote(Protobuf.Utils.define_algebraic_type(enum_atoms))
+      @type t() :: unquote(ExProtobuf.Utils.define_algebraic_type(enum_atoms))
     end
   end
 end
