@@ -1,0 +1,67 @@
+version: 2
+jobs:
+  release:
+    docker:
+      - image: heathmont/elixir-ci:1.14.3-otp-25-alpine
+    environment:
+      MIX_ENV: test
+    resource_class: xlarge
+    steps:
+      - checkout
+      - run:
+          name:       Check variables
+          command:    ./scripts/check-vars "in system" "ROBOT_SSH_KEY" "HEX_API_KEY"
+      - run:
+          name:       Setup robot SSH key
+          command:    echo "$ROBOT_SSH_KEY" | base64 -d > $HOME/.ssh/id_rsa.robot && chmod 600 $HOME/.ssh/id_rsa.robot && ssh-add $HOME/.ssh/id_rsa.robot
+      - run:
+          name:       Add github to known hosts
+          command:    ssh-keyscan github.com >> $HOME/.ssh/known_hosts
+      - run:
+          name:       Setup SSH config
+          command:    echo -e "Host *\n IdentityFile $HOME/.ssh/id_rsa.robot\n IdentitiesOnly yes" > $HOME/.ssh/config
+      - run:
+          name:       Fetch submodules
+          command:    git submodule update --init --recursive
+      - restore_cache:
+          keys:
+            - v1-release-{{ checksum "mix.lock" }}-{{ .Revision }}
+            - v1-release-{{ checksum "mix.lock" }}-
+            - v1-release-
+      - run:
+          name:       Hex auth
+          command:    mix hex.organization auth coingaming --key $HEX_API_KEY
+      - run:
+          name:       Fetch dependencies
+          command:    mix deps.get
+      - run:
+          name:       Compile dependencies
+          command:    mix deps.compile
+      - run:
+          name:       Compile protocols
+          command:    mix compile # --warnings-as-errors
+      - run:
+          name:       Run style checks
+          command:    mix credo --strict
+      - run:
+          name:       Run tests
+          command:    mix test
+       - run:
+          name:       Run Dialyzer type checks
+          command:    mix dialyzer
+          no_output_timeout: 10m
+      - save_cache:
+          key: v1-release-{{ checksum "mix.lock" }}-{{ .Revision }}
+          paths:
+            - deps
+            - ~/.mix
+      - run:
+          name:       Semantic Release
+          command:    npx semantic-release --extends @heathmont/semantic-release-elixir-hex
+
+workflows:
+  version: 2
+  release:
+    jobs:
+      - release:
+          context: global
