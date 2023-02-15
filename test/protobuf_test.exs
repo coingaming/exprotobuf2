@@ -1,4 +1,4 @@
-defmodule ProtobufTest do
+defmodule ExProtobufTest do
   use ExProtobuf.Case
 
   test "can roundtrip encoding/decoding optional values in proto2" do
@@ -74,6 +74,61 @@ defmodule ProtobufTest do
     refute decoded.f2
   end
 
+  test "can encode when inject is used" do
+    defmodule Msg do
+      use ExProtobuf, ["""
+      message Msg {
+        required uint32 f1 = 1;
+      }
+      """, inject: true]
+    end
+    msg = Msg.new(f1: 1)
+    encoded = Msg.encode(msg)
+    decoded = Msg.decode(encoded)
+
+    assert 1 = decoded.f1
+  end
+
+  test "can encode when inject and only are used" do
+    defmodule Msg do
+      use ExProtobuf, ["""
+      message Msg {
+        required uint32 f1 = 1;
+      }
+      """, inject: true, only: [:Msg]]
+    end
+    msg = Msg.new(f1: 1)
+    encoded = Msg.encode(msg)
+    decoded = Msg.decode(encoded)
+
+    assert 1 = decoded.f1
+  end
+
+  test "can encode when inject is used and module is nested" do
+    defmodule Nested.Msg do
+      use ExProtobuf, ["""
+      message Msg {
+        required uint32 f1 = 1;
+      }
+      """, inject: true]
+    end
+    msg = Nested.Msg.new(f1: 1)
+    encoded = Nested.Msg.encode(msg)
+    decoded = Nested.Msg.decode(encoded)
+
+    assert 1 = decoded.f1
+  end
+
+  test "can encode when inject is used and definition loaded from a file" do
+    defmodule Basic do
+      use ExProtobuf, from: Path.expand("./proto/simple.proto", __DIR__), inject: true
+    end
+    basic = Basic.new(f1: 1)
+    encoded = Basic.encode(basic)
+    decoded = Basic.decode(encoded)
+    assert 1 == decoded.f1
+  end
+
   test "can decode when protocol is extended with new optional field" do
     defmodule BasicProto do
       use ExProtobuf, """
@@ -130,6 +185,37 @@ defmodule ProtobufTest do
     {:module, mod, _, _} = Module.create(InjectionTest, contents, Macro.Env.location(__ENV__))
 
     assert %{:__struct__ => ^mod, :f1 => 1} = mod.new(f1: 1)
+  end
+
+  test "namespaces of not injected modules are valid with inject" do
+    contents = quote do
+      use ExProtobuf, ["
+       message A {
+           required uint32 f1 = 1;
+           optional B b = 2;
+       }
+
+       message B {
+           required uint32 fB = 1;
+       }
+      ", inject: true]
+    end
+
+    {:module, mod, _, _} = Module.create(A, contents, Macro.Env.location(__ENV__))
+    def_a = Enum.find(mod.defs, &match?({{:msg, A}, _}, &1))
+    {:msg, ns_field_b} = def_a |> elem(1) |> Enum.at(1) |> Map.get(:type)
+    assert ns_field_b == B
+  end
+
+  test "allow inject, use_package_names and from_file at the same time" do
+    defmodule Version do
+      use ExProtobuf,
+        from: Path.expand("./proto/mumble.proto", __DIR__),
+        inject: true,
+        use_package_names: true
+    end
+
+    assert Keyword.has_key?(Version.__info__(:functions), :new)
   end
 
   test "do not set default value for optional" do
