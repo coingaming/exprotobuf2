@@ -39,14 +39,14 @@ jobs:
           command:    mix deps.compile
       - run:
           name:       Compile protocols
-          command:    mix compile # --warnings-as-errors
+          command:    mix compile
       - run:
           name:       Run style checks
           command:    mix credo --strict
       - run:
           name:       Run tests
           command:    mix test
-       - run:
+      - run:
           name:       Run Dialyzer type checks
           command:    mix dialyzer
           no_output_timeout: 10m
