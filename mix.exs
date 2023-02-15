@@ -1,9 +1,14 @@
 defmodule ExProtobuf.Mixfile do
   use Mix.Project
 
+  @version (case File.read("VERSION") do
+    {:ok, version} -> String.trim(version)
+    {:error, _} -> "0.0.0-development"
+  end)
+
   def project do
     [app: :exprotobuf,
-     version: "1.2.17",
+     version: @version,
      elixir: "~> 1.7",
      elixirc_paths: elixirc_paths(Mix.env),
      preferred_cli_env: [
