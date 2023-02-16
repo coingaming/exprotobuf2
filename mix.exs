@@ -47,7 +47,7 @@ defmodule ExProtobuf.Mixfile do
   defp deps do
     [
       {:gpb, "~> 4.0"},
-      {:ex_doc, "~> 0.19", only: :dev},
+      {:ex_doc, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.5", only: :dev},
       {:benchfella, "~> 0.3.0", only: [:bench], runtime: false}
     ]
