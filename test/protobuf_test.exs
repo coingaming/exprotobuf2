@@ -390,8 +390,8 @@ defmodule ExProtobufTest do
           }
 
           message msgHeader {
-            required uint32 message_id = 0;
-            required msgResponseType response_type = 1;
+            required uint32 message_id = 1;
+            required msgResponseType response_type = 2;
           }
 
           required msgHeader header = 1;
