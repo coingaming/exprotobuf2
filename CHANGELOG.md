@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/coingaming/exprotobuf2/compare/v2.0.2...v2.0.3) (2023-02-16)
+
+
+### Bug Fixes
+
+* update ex_doc for otp change ([13a62ce](https://github.com/coingaming/exprotobuf2/commit/13a62ce76e733bdfc5d0ac7f74b6c8f1b812c591))
+
 ## [2.0.2](https://github.com/coingaming/exprotobuf2/compare/v2.0.1...v2.0.2) (2023-02-16)
 
 
