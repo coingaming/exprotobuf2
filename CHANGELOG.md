@@ -1,3 +1,10 @@
+## [2.0.4](https://github.com/coingaming/exprotobuf2/compare/v2.0.3...v2.0.4) (2023-02-16)
+
+
+### Bug Fixes
+
+* add VERSION file ([5e10148](https://github.com/coingaming/exprotobuf2/commit/5e101485e7cbb3754a567975076d8b5bcd19c5fb))
+
 ## [2.0.3](https://github.com/coingaming/exprotobuf2/compare/v2.0.2...v2.0.3) (2023-02-16)
 
 
