@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/coingaming/exprotobuf2/compare/v2.0.1...v2.0.2) (2023-02-16)
+
+
+### Bug Fixes
+
+* align ex_doc with ci ([ccb632f](https://github.com/coingaming/exprotobuf2/commit/ccb632faba0206ffbc137d7f14b6a3b28dd14726))
+
 ## [2.0.1](https://github.com/coingaming/exprotobuf2/compare/v2.0.0...v2.0.1) (2023-02-16)
 
 
