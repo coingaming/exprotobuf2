@@ -38,7 +38,7 @@ defmodule ExProtobuf.Mixfile do
   end
 
   defp package do
-    [files: ["lib", "mix.exs", "README.md", "LICENSE", "priv"],
+    [files: ["lib", "mix.exs", "README.md", "LICENSE", "priv", "VERSION"],
      maintainers: ["Paul Schoenfelder"],
      licenses: ["Apache Version 2.0"],
      links: %{"GitHub": "https://github.com/bitwalker/exprotobuf"} ]
