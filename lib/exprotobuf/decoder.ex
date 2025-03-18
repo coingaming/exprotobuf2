@@ -1,5 +1,4 @@
 defmodule ExProtobuf.Decoder do
-  use Bitwise, only_operators: true
   require ExProtobuf.Utils, as: Utils
   alias ExProtobuf.Field
   alias ExProtobuf.OneOfField

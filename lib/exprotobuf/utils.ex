@@ -97,7 +97,7 @@ defmodule ExProtobuf.Utils do
   def convert_from_record(rec, module) do
     map = struct(module)
 
-    module.record
+    module.record()
     |> Enum.with_index()
     |> Enum.reduce(map, fn {{key, _default}, idx}, acc ->
       # rec has the extra element when defines the record type
