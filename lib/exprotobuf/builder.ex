@@ -28,7 +28,7 @@ defmodule ExProtobuf.Builder do
         @config unquote(Macro.escape(Map.to_list(%{config | :schema => nil})))
         @msgs unquote(Macro.escape(msgs))
         contents = unquote(__MODULE__).generate(@msgs, @config)
-        Module.eval_quoted(__MODULE__, contents, [], __ENV__)
+        Code.eval_quoted(contents, [], __ENV__)
       end
     else
       quote do
@@ -57,7 +57,7 @@ defmodule ExProtobuf.Builder do
   defmacro __before_compile__(_env) do
     quote location: :keep do
       contents = unquote(__MODULE__).generate(@msgs, @config)
-      Module.eval_quoted(__MODULE__, contents, [], __ENV__)
+      Code.eval_quoted(contents, [], __ENV__)
     end
   end
 

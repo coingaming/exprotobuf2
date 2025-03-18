@@ -61,7 +61,7 @@ defmodule ExProtobuf.DefineMessage do
           unquote(constructors(name))
 
           if use_in != nil do
-            Module.eval_quoted(__MODULE__, use_in, [], __ENV__)
+            Code.eval_quoted(use_in, [], __ENV__)
           end
 
           defimpl ExProtobuf.Serializable do
